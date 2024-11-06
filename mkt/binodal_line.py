@@ -1,0 +1,1 @@
+# Write a code to find T_b(X_B) and plot it alongside the spinodal curve.
