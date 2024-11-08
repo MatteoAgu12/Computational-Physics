@@ -1,66 +1,83 @@
-\\ Resistivity as function of temperature for metals and semiconductorss
-\\ 2-wires and 4-wires measurements techniques
-
-
 int RT()
 {
-    TFile *time = new TFile("RT_time.txt", "read");
+    // Read data files
+    TFile *data_V = new TFile("RT_data_V.txt", "read");
+    TFile *data_R = new TFile("RT_data_R.txt", "read");
+
+    // Create canvas
+    TCanvas *c1 = new TCanvas("c1", "Temperature vs Time", 1200, 600);
+    TCanvas *c2 = new TCanvas("c2", "Potential vs Time", 1200, 600);
+    TCanvas *c3 = new TCanvas("c3", "Relative resistances vs Temperature", 1200, 600);
+
+    // Temperature graph
+    TGraph *temp = new TGraph("RT_data_V.txt", "%lg %*lg %*lg %*lg %lg");
+    temp->SetTitle("T(t); Time (s); Temperature (K)");
+    temp->SetLineColor(kGreen); 
+
+    // Potentials graphs
+    TGraph *pot1 = new TGraph("RT_data_V.txt", "%lg %lg %*lg %*lg %*lg");
+    pot1->SetTitle("V1(t); Time (s); Voltage (V)");
+    pot1->SetLineColor(kBlue);
     
-    TFile *pot1 = new TFile("RT_potential1.txt", "read");
-    TFile *pot2 = new TFile("RT_potential2.txt", "read");
-    TFile *pot3 = new TFile("RT_potential3.txt", "read");
-    TFile *pot4 = new TFile("RT_potential4.txt", "read");
+    TGraph *pot2 = new TGraph("RT_data_V.txt", "%lg %*lg %lg %*lg %*lg");
+    pot2->SetTitle("V2(t); Time (s); Voltage (V)");
+    pot2->SetLineColor(kRed); 
+   
+    TGraph *pot3 = new TGraph("RT_data_V.txt", "%lg %*lg %*lg %lg %*lg");
+    pot3->SetTitle("V3(t); Time (s); Voltage (V)");
+    pot3->SetLineColor(kViolet); 
 
-    TFile *R1 = new TFile("RT_relative_Ge.txt", "read");
-    TFile *R2 = new TFile("RT_relative_Ni.txt", "read");
-    TFile *R3 = new TFile("RT_relative_Cu.txt", "read");
+    TGraph *pot4 = new TGraph("RT_data_V.txt", "%lg %*lg %*lg %*lg %lg");
+    pot4->SetTitle("V4(t); Time (s); Voltage (V)");
+    pot4->SetLineColor(kGreen); 
 
-    TFile *temperature = new TFile("RT_temperature.txt", "read");
+    // Create multigraph for potentials
+    TMultiGraph *mg_pot = new TMultiGraph();
+    mg_pot->Add(pot1);
+    mg_pot->Add(pot2);
+    mg_pot->Add(pot3);
+    mg_pot->Add(pot4);
 
-    TFile *files[9] = {time, pot1, pot2, pot3, pot4, R1, R2, R3, temperature};
+    // Cosmetics for multigraph
+    mg_pot->SetTitle("Potentials versus time");
+    mg_pot->GetXaxis()->SetTitle("Time (s)");
+    mg_pot->GetYaxis()->SetTitle("Voltage (V)");
+    
+    // Relative resistances graphs
+    TGraph *R1 = new TGraph("RT_data_R.txt", "%lg %lg %*lg %*lg");
+    R1->SetTitle("R1(T)/R1_0; Temperature (K); Relative resistance (a.u.)");
+    R1->SetLineColor(kBlue); // Set color for first resistance graph
 
-    TCanvas *c = new TCanvas("c", "Voltage Regimes", 1200, 600);
-    c->Divide(3, 1);
+    TGraph *R2 = new TGraph("RT_data_R.txt", "%lg %*lg %lg %*lg");
+    R2->SetTitle("R2(T)/R2_0; Temperature (K); Relative resistance (a.u.)");
+    R2->SetLineColor(kRed); // Set color for second resistance graph
 
-    for (int i{0}; i < 3; ++i)
-    {
-        TGraph *gS = new TGraph(files[i]->GetName(), "%lg %lg %*lg %*lg %*lg");
-        gS->SetTitle("Source; Time (s); Voltage (V)");
-        TGraph *gL = new TGraph(files[i]->GetName(), "%lg %*lg %lg %*lg %*lg");
-        gL->SetTitle("Inductor; Time (s); Voltage (V)");
-        TGraph *gC = new TGraph(files[i]->GetName(), "%lg %*lg %*lg %lg %*lg");
-        gC->SetTitle("Capacitor; Time (s); Voltage (V)");
-        TGraph *gR = new TGraph(files[i]->GetName(), "%lg %*lg %*lg %*lg %lg");
-        gR->SetTitle("Resistance; Time (s); Voltage (V)");
+    TGraph *R3 = new TGraph("RT_data_R.txt", "%lg %*lg %*lg %lg");
+    R3->SetTitle("R3(T)/R3_0; Temperature (K); Relative resistance (a.u.)");
+    R3->SetLineColor(kViolet); // Set color for third resistance graph
 
-        gS->SetMarkerStyle(7);
+    // Create multigraph for relative resistances
+    TMultiGraph *mg_res = new TMultiGraph();
+    mg_res->Add(R1);
+    mg_res->Add(R2);
+    mg_res->Add(R3);
+    
+    // Cosmetics for multigraph
+    mg_res->SetTitle("Relative resistances versus temperature");
+    mg_res->GetXaxis()->SetTitle("Temperature (K)");
+    mg_res->GetYaxis()->SetTitle("Relative resistances (a.u.)");
+    
+    // Draw graphs on canvas 
+    c1->cd();
+    temp->Draw("APL");
+    
+    c2->cd();
+    mg_pot->Draw("APL");
+    c2->BuildLegend();
 
-        gL->SetMarkerStyle(7);
-        gL->SetMarkerColor(kRed);
-        //gL->SetLineColor(kRed);
-
-        gC->SetMarkerStyle(7);
-        gC->SetMarkerColor(kGreen);
-        //gC->SetLineColor(kGreen);
-
-        gR->SetMarkerStyle(7);
-        gR->SetMarkerColor(kBlue);
-       // gR->SetLineColor(kBlue);
-
-
-        TMultiGraph *mg = new TMultiGraph();
-        mg->Add(gL);
-        mg->Add(gR);
-        mg->Add(gC);
-        mg->Add(gS);
-
-        mg->SetTitle(title[i]);
-        mg->GetXaxis()->SetTitle("Time (s)");
-        mg->GetYaxis()->SetTitle("Voltage (V)");
-        c->cd(i + 1);
-        mg->Draw("APL");
-        c->cd(i + 1)->BuildLegend();
-    }
+    c3->cd();
+    mg_res->Draw("APL");
+    c3->BuildLegend();
 
     return 0;
 }
