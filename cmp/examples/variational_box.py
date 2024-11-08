@@ -92,12 +92,3 @@ sliderV.on_changed(update)
 
 compute_var(ax1, ax2)
 plt.show()
-
-"""Exercise:
-
-1) For V=10 and a=0.5 find the minimum basis set size N that guarantee a convergence to the third digit for the first (ground state) eigenvalue.
-
-2) Verify that the convergence is more difficult (larger N) for excited states, for instance E5.
-
-3) Verify that a larger basis set size (N) is needed to converge to the third digit for a larger potential, e.g. V=100. Why? (mind: little bug in the program to be fixed)
-"""
